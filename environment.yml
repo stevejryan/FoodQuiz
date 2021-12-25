@@ -1,0 +1,8 @@
+name: food
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - flask
+  - click
+prefix: C:\Users\steve.ryan\Miniconda3\envs\food
