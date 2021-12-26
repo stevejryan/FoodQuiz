@@ -1,15 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Welcome to FlaskBlog {% endblock %}</h1>
-	{% for post in posts %}
-        <a href="{{ url_for('post', post_id=post['id']) }}">
-            <h2>{{ post['title'] }}</h2>
-        </a>
-        <span class="badge badge-primary">{{ post['created'] }}</span>
-        <a href="{{ url_for('edit', id=post['id']) }}">
-            <span class="badge badge-warning">Edit</span>
-        </a>
+    <h1>{% block title %} Welcome to the FoodQuiz! {% endblock %}</h1>
+	<!---
+	{% for person in people %}
+		<h2>{{ person['name'] }}</h2>
+        <span class="badge badge-primary">{{ person['person_id'] }}</span>
         <hr>
-    {% endfor %}
+    {% endfor %} -->
+	<ul>
+	 {% for person in people %}
+	 <li>{{ person['name'] }}</li>
+	 {% endfor %}
+	 </ul>
+	 
+	 <!---<ol>
+	 {% for person in people %}
+	 <li>{{ person['name'] }}</li>
+	 {% endfor %}
+	 </ol> -->
+	 
+	<form method="post">
+		<div class="form-group">
+			<label for="content">Who's coming to dinner?</label>
+			<textarea name="content" placeholder="Post content"
+					  class="form-control">{{ request.form['content'] }}</textarea>
+		</div>
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</form>
 {% endblock %}

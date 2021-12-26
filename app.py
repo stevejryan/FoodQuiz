@@ -7,12 +7,18 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdf'
 
 
-@app.route('/')
+@app.route('/', methods=('GET', 'POST'))
 def index():
+    if request.method == 'POST':
+        people = request.form['content']
+        matching_ingredients = get_matching_ingredients(people)
+        return render_template('post.html', ingredients=matching_ingredients)
+        #return render_template('post.html', ingredients=matching_ingredients)
+        
     conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
+    posts = conn.execute('SELECT * FROM person').fetchall()
     conn.close()
-    return render_template('index.html', posts=posts)
+    return render_template('index.html', people=posts)
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -29,6 +35,26 @@ def get_post(post_id=None):
     if post is None or post_id is None:
         abort(404)
     return post
+
+def get_matching_ingredients(people):
+    names = people.split('\n')
+    names = [name.strip() for name in names]
+    conn = get_db_connection()
+    matching_ingredients = []
+    first_pass = True
+    # start with assumption all ingredients are good
+    good_ingredients = {ing[0] for ing in conn.execute('SELECT name FROM ingredient_types').fetchall()}
+    for name in names:
+        print(name)
+        name_id = conn.execute('SELECT person_id FROM person WHERE name=?',
+                               (name,)).fetchall()
+        if len(name_id) > 0:
+            name_id = name_id[0][0]
+            good_ingredients_results = conn.execute('SELECT it.name FROM preference p JOIN ingredient_types it ON it.ingredient_id = p.ingredient_type_id WHERE person_id = ? AND preference_type_id = ?', (name_id, 1)).fetchall()
+            # extract as set 
+            good_ingredients = good_ingredients.intersection({name[0] for name in good_ingredients_results})
+        #breakpoint()
+    return good_ingredients
 
 """a variable rule <int:post_id> to specify that the part 
 after the slash (/) is a positive integer (marked with the
